@@ -1,25 +1,4 @@
-import socket
-import sys
-
-def send_commands(s, conn):
-    """Get a command from the user and send it to the client."""
-    print("\nCtrl + C to kill the connection.\n")
-    # test 
-    data1 = conn.recv(4096).decode()
-    
-    # ------
-    print(f"{data1}", end="")
-    while True:
-        try:
-            cmd = input()
-            if len(cmd) > 0:
-                conn.sendall(cmd.encode())
-                data = conn.recv(4096) # avaz nashe, high capacity
-                print(data.decode("utf-8"), end="")
-        except KeyboardInterrupt:
-            print("\nGoodbye.")
-            conn.close()
-            sys.exit()
+\
         except Exception as e:
             print(e)
             conn.close()
