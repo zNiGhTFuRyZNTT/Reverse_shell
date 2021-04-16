@@ -19,5 +19,8 @@ class Connect(WebSocket):
     def handle_close(self):
         print(self.address, 'closed')
 
-server = WebSocketServer('127.0.0.1', 5050, Connect)
+LHOST = '127.0.0.1'
+LPORT = 5050
+server = WebSocketServer(LHOST, LPORT, Connect)
+print("Listening on {LHOST}:{LPORT}")
 server.serve_forever()
