@@ -46,7 +46,14 @@
     ```
     chmod +x ngrok
     ```
-    Then run it:
+    Then copy your Authtoken from <a href="https://ngrok.com">ngrok</a> Dashboard and then run:
+
+    ```
+    ./ngrok authtoken xxxxx
+    ```
+    replace your token with xxxxx.<br>
+    After authenticating it's time to run it:
+
     ```
     ./ngrok http 5050
     ```
@@ -54,7 +61,8 @@
     After Running that you will see something like this:<br>
     <p align="center">
     <img src="./Images/ngrok.png" alt="ngrok"/></p>
-    Just Copy the link as underlined in the screen shot and paste it in `address = ""` variable in main.py
+
+    Just Copy the link as underlined in the screen shot and paste it in `address = ""` variable in main.py <br> ( [!] Don't forget to replace `https` with `wss` ).
     <br><br>
 
     Now that we have set up our liteners we need to compile the main.py to exe.
