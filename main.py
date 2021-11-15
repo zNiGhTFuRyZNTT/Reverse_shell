@@ -9,6 +9,8 @@ from threading import Thread
        | -  Made by NiGhTFuRy, Vaxer, MainSilent - |
         | ~ Redesign and Optimized By NiGhTFuRy ~ |
 """
+
+
 class cc:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
