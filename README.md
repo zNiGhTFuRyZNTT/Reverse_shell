@@ -65,31 +65,43 @@
     Just Copy the link as underlined in the screen shot and paste it in `address = ""` variable in main.py <br> ( [!] Don't forget to replace `https` with `wss` ).
     <br><br>
 
-    Now that we have set up our liteners we need to compile the main.py to exe.
+    Now that we have set up our liteners we need to run main.py file.
+    <br>
+
+    ```
+    py main.py
+    ```
+    but since we have to compile it to exe then it will be ready to be sent to our target.
+    there are different ways of compiling .py to .exe e.g. Pyinstaller, cxfreeze, py2exe, Cython.
+    <br>
+    Just compile it to exe and then run it, and you'll gain access to that Windows machine from your litener machine.
+    <br>
+    
     <bt>
     run:
 
-    
-    -   ```
-        pip install pyinstaller
-        ```
-    - ```
-      pyinstaller --onefile --noconsole main.py
-        ```
-    
-        - Now You'll find the executable in dist and we will gain access to the windows machine who runs this executable
-         - you can rename it to whatever you want and even change the icon to make it more realistic.
-    
-    
-
-
-
+## IMPORTANT
 ---
+ - Unfortunately I tried compiling main.py to a standalone exe using `Pyinstaller` but after running the exe everything works fine except when I try commands that are not localy defined in our main.py code.
+ <br> Actually 
+ main.py : Line 82 : `data = os.popen(cmd).read()` doesn't work after compiling with this command :
+ 
+ ```
+ pyinstaller --onefile --noconsole main.py 
+ ```
+ <br>
+
+ - But if you compile it normally(not onefile) it works perfectly but it will be hard to carry it to the target to run it since it is not a single file.
+ <br>
+
+
 ## NOTES
+---
 - Any Recommendation will be appreciated, don't forget `Pull requests` if you have any idea to improve this project . 👙🤺
 
+ ### I'll appreciate if anyone can help us find a better way to compile it to a standalone single file Until pyinstaller fixes it.
 
-### Do not HeZiTaTe to open issues if there was a problem!
+### Do not HeZiTaTe to open issues if there was any other problem!
 <p align="center">
 ❤️❤️❤️
 </p>
