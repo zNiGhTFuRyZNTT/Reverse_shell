@@ -1,3 +1,10 @@
+"""
+    | - Intelligent Websocket Reverse shell Client - |
+            | -  Made by NiGhTFuRy, Vexius - |
+                | ~ Refactored by VEX ~ |
+"""
+
+
 import os
 import asyncio
 import websockets
